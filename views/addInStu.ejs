@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เพิ่มข้อมูลนักเรียน | ระบบจัดการการศึกษา</title>
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <style>
+        body { margin: 0; background-color: #dbe0e5; font-family: 'Prompt', sans-serif; height: 100vh; overflow: hidden; display: flex; justify-content: center; }
+        .app-container { width: 1280px; max-width: 100%; height: 100vh; background-color: #f4f5f8; display: flex; flex-direction: column; box-shadow: 0 0 25px rgba(0,0,0,0.1); }
+        .top-wrapper { height: 64px; flex-shrink: 0; background-color: #ffffff; z-index: 10; border-bottom: 1px solid #E0E0E0;}
+        .bottom-wrapper { display: flex; flex: 1; overflow: hidden; }
+        .sidebar-wrapper { width: 280px; flex-shrink: 0; background-color: #F4F7FE; border-right: 1px solid #E0E0E0; }
+        .main-content { flex: 1; padding: 25px; overflow-y: auto; }
+        
+        .admin-card { background-color: #fff; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden; border: 1px solid #e0e0e0; margin: 0 auto; max-width: 850px; }
+        .admin-header { background-color: #CFE2FF; color: #084298; padding: 18px 25px; border-bottom: 1px solid #e0e0e0; }
+        
+        .form-label { font-weight: 500; color: #495057; margin-bottom: 0.5rem; font-size: 0.95rem; }
+        .form-control, .form-select { border-radius: 8px; padding: 0.6rem 1rem; border: 1px solid #ced4da; background-color: #fcfcfc; }
+        .form-control:focus, .form-select:focus { border-color: #86b7fe; box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15); background-color: #fff; }
+        .required-asterisk { color: #dc3545; font-weight: bold; }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+
+        <div class="top-wrapper">
+            <%- include('partials/mtbar') %>
+        </div>
+
+        <div class="bottom-wrapper">
+
+            <div class="sidebar-wrapper">
+                <%- include('partials/mlbar') %>
+            </div>
+
+            <main class="main-content">
+                
+                <div class="admin-card">
+                    
+                    <div class="admin-header d-flex justify-content-between align-items-center">
+                        <h5 class="fw-bold mb-0">
+                            <i class="bi bi-person-plus-fill me-2"></i>เพิ่มข้อมูลนักเรียนใหม่
+                        </h5>
+                        <a href="/admin/man/student" class="btn btn-sm btn-outline-primary bg-white rounded-pill px-3 shadow-sm" style="color: #084298; border-color: #084298;">
+                            <i class="bi bi-arrow-left"></i> กลับหน้าจัดการ
+                        </a>
+                    </div>
+
+                    <div class="p-4 p-md-5">
+                        <form action="/admin/man/saveStu" method="POST">
+                            
+                            <div class="row mb-3 g-4">
+                                <div class="col-md-6">
+                                    <label for="first" class="form-label">ชื่อ <span class="required-asterisk">*</span></label>
+                                    <input type="text" class="form-control" name="first" id="first" placeholder="ระบุชื่อ" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="last" class="form-label">นามสกุล <span class="required-asterisk">*</span></label>
+                                    <input type="text" class="form-control" name="last" id="last" placeholder="ระบุนามสกุล" required>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3 g-4">
+                                <div class="col-md-6">
+                                    <label for="gender" class="form-label">เพศ <span class="required-asterisk">*</span></label>
+                                    <select class="form-select" name="gender" id="gender" required>
+                                        <option value="" disabled selected>เลือกเพศ</option>
+                                        <option value="male">ชาย</option>
+                                        <option value="female">หญิง</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="DOB" class="form-label">วัน-เดือน-ปี เกิด <span class="required-asterisk">*</span></label>
+                                    <input type="date" class="form-control" name="DOB" id="DOB" required>
+                                </div>
+                            </div>
+
+                            <div class="row mb-4 g-4 border-bottom pb-4">
+                                <div class="col-md-6">
+                                    <label for="email" class="form-label">อีเมล <span class="required-asterisk">*</span></label>
+                                    <input type="email" class="form-control" name="email" id="email" placeholder="student@school.com" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="tel" class="form-label">เบอร์โทรศัพท์</label>
+                                    <input type="tel" class="form-control" name="tel" id="tel" placeholder="08X-XXX-XXXX">
+                                </div>
+                            </div>
+
+                            <div class="row mb-4 g-4 border-bottom pb-4">
+                                <div class="col-md-4">
+                                    <label for="ID" class="form-label">รหัสนักเรียน <span class="required-asterisk">*</span></label>
+                                    <input type="text" class="form-control" name="ID" id="ID" placeholder="เช่น 68001" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="room" class="form-label">รหัสห้อง (Homeroom) <span class="required-asterisk">*</span></label>
+                                    <input type="text" class="form-control" name="room" id="room" placeholder="เช่น 401" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="password" class="form-label">รหัสผ่านเริ่มต้น <span class="required-asterisk">*</span></label>
+                                    <input type="password" class="form-control" name="password" id="password" placeholder="ตั้งรหัสผ่าน" required>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-end gap-3 mt-2">
+                                <button type="reset" class="btn btn-light px-4 border rounded-pill">ล้างค่า</button>
+                                <button type="submit" class="btn btn-primary px-5 shadow-sm rounded-pill fw-semibold">
+                                    <i class="bi bi-save me-1"></i> บันทึกข้อมูล
+                                </button>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+                
+            </main>
+        </div>
+    </div>
+</body>
+
+</html>

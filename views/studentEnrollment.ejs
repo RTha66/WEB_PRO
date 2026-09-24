@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ลงทะเบียนเรียน | ระบบจัดการการศึกษา</title>
+    
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <style>
+        body { margin: 0; background-color: #dbe0e5; font-family: 'Prompt', sans-serif; height: 100vh; overflow: hidden; display: flex; justify-content: center; }
+        .app-container { width: 1280px; max-width: 100%; height: 100vh; background-color: #f4f5f8; display: flex; flex-direction: column; box-shadow: 0 0 25px rgba(0,0,0,0.1); }
+        .top-wrapper { height: 64px; flex-shrink: 0; background-color: #ffffff; z-index: 10; border-bottom: 1px solid #E0E0E0;}
+        
+        .bottom-wrapper { display: flex; flex: 1; overflow: hidden; min-height: 0; }
+        .sidebar-wrapper { width: 280px; flex-shrink: 0; background-color: #F4F7FE; border-right: 1px solid #E0E0E0; overflow-y: auto; }
+        .main-content { flex: 1; padding: 25px; overflow-y: auto; height: 100%; }
+
+        .student-card { background-color: #fff; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden; border: 1px solid #e0e0e0; margin-bottom: 20px; }
+        .student-header { background-color: #CFE2FF; color: #084298; padding: 15px 20px; border-bottom: 1px solid #e0e0e0; }
+
+        .table-scroll { max-height: 400px; overflow-y: auto; border: 1px solid #e0e0e0; border-radius: 8px; }
+        .table-hover tbody tr:hover { background-color: #f8f9fa; }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+
+        <div class="top-wrapper">
+            <%- include('partials/mtbar') %>
+        </div>
+
+        <div class="bottom-wrapper">
+
+            <div class="sidebar-wrapper">
+                <%- include('partials/mlbar') %>
+            </div>
+
+            <main class="main-content">
+
+                <div class="student-card">
+                    
+                    <div class="student-header">
+                        <h5 class="mb-0 fw-bold"><i class="bi bi-journal-plus me-2"></i>ลงทะเบียนวิชาเลือก / ชมรม</h5>
+                    </div>
+
+                    <div class="p-4">
+                        <form method="POST" action="/student/enroll">
+                            
+                            <div class="row align-items-end mb-4 bg-light p-3 rounded-3 border">
+                                <div class="col-md-9">
+                                    <label class="form-label fw-bold text-dark mb-2">เลือกรายวิชาที่ต้องการลงทะเบียน</label>
+                                    <select class="form-select border-primary shadow-sm" name="section_id" required>
+                                        <option value="" selected disabled>-- กรุณาเลือกรายวิชา --</option>
+                                        <% sections.forEach(sec => { %>
+                                            <option value="<%= sec.section_id %>">
+                                                [<%= sec.course_code %>] <%= sec.course_name %> (<%= sec.course_type.toUpperCase() %>)
+                                            </option>
+                                        <% }) %>
+                                    </select>
+                                </div>
+                                <div class="col-md-3 text-end mt-3 mt-md-0">
+                                    <button type="submit" class="btn btn-primary rounded-pill shadow-sm w-100 fw-semibold">
+                                        <i class="bi bi-check2-circle me-1"></i> ยืนยันลงทะเบียน
+                                    </button>
+                                </div>
+                            </div>
+
+                            <hr class="text-muted mb-4">
+                            <h6 class="fw-bold text-secondary mb-3"><i class="bi bi-list-ul me-2"></i>รายการวิชาที่เปิดสอน</h6>
+
+                            <div class="table-scroll shadow-sm">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="table-light sticky-top" style="z-index: 1;">
+                                        <tr>
+                                            <th class="ps-4">รหัสวิชา</th>
+                                            <th>ชื่อวิชา</th>
+                                            <th class="text-center">ประเภท</th>
+                                            <th class="text-center">หน่วยกิต</th>
+                                            <th>วันเรียน</th>
+                                            <th>เวลาเรียน</th>
+                                            <th>ห้องเรียน</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% if (sections && sections.length > 0) { %>
+                                            <% sections.forEach(sec => { %>
+                                                <tr>
+                                                    <td class="ps-4 text-primary fw-bold"><%= sec.course_code %></td>
+                                                    <td class="fw-semibold text-dark"><%= sec.course_name %></td>
+                                                    <td class="text-center">
+                                                        <% if (sec.course_type.toLowerCase() === 'club') { %>
+                                                            <span class="badge bg-warning text-dark rounded-pill shadow-sm px-3">ชมรม</span>
+                                                        <% } else { %>
+                                                            <span class="badge bg-info text-dark rounded-pill shadow-sm px-3">วิชาเลือก</span>
+                                                        <% } %>
+                                                    </td>
+                                                    <td class="text-center"><%= sec.credit_hours %></td>
+                                                    <td><%= sec.schedule_day %></td>
+                                                    <td><i class="bi bi-clock me-1 text-muted small"></i><%= sec.start_time %> - <%= sec.end_time %></td>
+                                                    <td><%= sec.room %></td>
+                                                </tr>
+                                            <% }) %>
+                                        <% } else { %>
+                                            <tr>
+                                                <td colspan="7" class="text-center py-5 text-muted">
+                                                    <i class="bi bi-calendar-x fs-2 d-block mb-2"></i>
+                                                    ไม่มีรายวิชาเลือกหรือชมรมเปิดสอนในขณะนี้
+                                                </td>
+                                            </tr>
+                                        <% } %>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                        </form>
+                    </div>
+
+                </div>
+
+            </main>
+
+        </div>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,74 @@
+body {
+    background-color: #f4f7f6;
+    font-family: 'Inter', sans-serif;
+}
+
+.main-card {
+    overflow: hidden;
+    border: none;
+    margin: auto;
+        border-radius: 24px;
+    max-width: 1000px;
+    width: 95%;
+}
+
+.profile-img-container {
+    border: 5px solid white;
+        width: 160px;
+    height: 160px;
+    border-radius: 20px;
+    overflow: hidden;
+    background: #fff;
+    padding: 10px;
+}
+
+.profile-img-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.form-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-left: 4px;
+    margin-bottom: 5px;
+    color: #444;
+}
+
+.form-control,
+.form-select {
+    padding: 10px 15px;
+        border-radius: 12px;
+    border: 1px solid #dee2e6;
+}
+
+.form-control[readonly] {
+    background-color: #f8f9fa !important;
+    border-color: #dee2e6;
+    color: #6c757d;
+        opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.form-control:focus {
+    border-color: #7c83fd;
+    box-shadow: 0 0 0 0.25rem rgba(124, 131, 253, 0.1);
+}
+
+.btn-primary {
+    background-color: #7c83fd;
+    border: none;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #5b63e0;
+    transform: translateY(-2px);
+}
+
+.min-vh-100 {
+    min-height: 100vh !important;
+    padding: 20px;
+}

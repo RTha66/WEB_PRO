@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>แก้ไขข้อมูลรายวิชา | ระบบจัดการหลักสูตร</title>
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        body { margin: 0; background-color: #dbe0e5; font-family: 'Prompt', sans-serif; height: 100vh; overflow: hidden; display: flex; justify-content: center; }
+        .app-container { width: 1280px; max-width: 100%; height: 100vh; background-color: #f4f5f8; display: flex; flex-direction: column; box-shadow: 0 0 25px rgba(0,0,0,0.1); }
+        .top-wrapper { height: 64px; flex-shrink: 0; background-color: #ffffff; z-index: 10; }
+        .bottom-wrapper { display: flex; flex: 1; overflow: hidden; }
+        .sidebar-wrapper { width: 280px; flex-shrink: 0; background-color: #F4F7FE; border-right: 1px solid #E0E0E0; }
+        .main-content { flex: 1; padding: 40px; overflow-y: auto; background-color: #f8f9fd; }
+
+        .card-edit { border: none; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); overflow: hidden; background: white; }
+        .header-purple { background: linear-gradient(135deg, #6a5af9 0%, #4A3AFF 100%); color: white; padding: 25px; }
+        .form-label { font-size: 0.85rem; font-weight: 600; color: #555; margin-bottom: 8px; }
+        .form-control, .form-select { border-radius: 10px; padding: 10px 15px; border: 1px solid #e0e0e0; transition: 0.3s; font-size: 0.95rem; }
+        .form-control:focus, .form-select:focus { border-color: #4A3AFF; box-shadow: 0 0 0 0.25rem rgba(74, 58, 255, 0.1); outline: none; }
+        
+        .btn-save { background: #4A3AFF; color: white; border-radius: 10px; font-weight: bold; border: none; padding: 15px; transition: 0.3s; }
+        .btn-save:hover { background: #3629cc; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(74, 58, 255, 0.3); }
+    </style>
+</head>
+<body>
+    
+    <div class="app-container">
+        <div class="top-wrapper">
+            <%- include('partials/mtbar') %>
+        </div>
+
+        <div class="bottom-wrapper">
+            <div class="sidebar-wrapper">
+                <%- include('partials/mlbar') %>
+            </div>
+
+            <main class="main-content">
+                <div class="container-fluid">
+                    <div class="row justify-content-center">
+                        <div class="col-lg-11">
+                             
+                            <a href="/regis/curriculum" class="text-decoration-none text-muted small mb-3 d-inline-block">
+                                <i class="fa-solid fa-arrow-left me-1"></i> กลับไปหน้ารายวิชา
+                            </a>
+
+                            <div class="card card-edit">
+                                <div class="header-purple text-center">
+                                    <h4 class="fw-bold m-0"><i class="fa-solid fa-pen-to-square me-2"></i>แก้ไขข้อมูลรายวิชา</h4>
+                                    <p class="m-0 mt-2 opacity-75" style="font-size: 0.9rem;">
+                                        รหัสวิชา: <%= subject.course_code %> | รหัสอ้างอิง: <%= typeof courseId !== 'undefined' ? courseId : subject.course_id %>
+                                    </p>
+                                </div>
+
+                                <div class="card-body p-4 p-md-5">
+                                    <form action="/regis/update-subject/<%= typeof courseId !== 'undefined' ? courseId : subject.course_id %>" method="POST">
+                                        <div class="row g-4">
+                                             
+                                            <div class="col-md-3">
+                                                <label class="form-label">รหัสวิชา</label>
+                                                <input type="text" name="course_code" class="form-control" value="<%= subject.course_code %>" required>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <label class="form-label">ชื่อรายวิชา</label>
+                                                <input type="text" name="course_name" class="form-control" value="<%= subject.course_name %>" required>
+                                            </div>
+
+                                            <div class="col-md-3">
+                                                <label class="form-label">หน่วยกิต</label>
+                                                <input type="number" name="credit_hours" class="form-control" value="<%= subject.credit_hours %>" min="1" max="10">
+                                            </div>
+
+<div class="col-md-3">
+    <label class="form-label text-success"><i class="fa-solid fa-book me-1"></i> ประเภทวิชา (Type)</label>
+    <select name="course_type" class="form-select" required>
+        <option value="" <%= !subject.course_type ? 'selected' : '' %> disabled>-- เลือกประเภท --</option>
+        <option value="CORE" <%= subject.course_type === 'CORE' ? 'selected' : '' %>>วิชาบังคับ (CORE)</option>
+        <option value="TRACK" <%= subject.course_type === 'TRACK' ? 'selected' : '' %>>วิชาสายการเรียน (TRACK)</option>
+        <option value="ELECTIVE" <%= subject.course_type === 'ELECTIVE' ? 'selected' : '' %>>วิชาเลือก (ELECTIVE)</option>
+        <option value="CLUB" <%= subject.course_type === 'CLUB' ? 'selected' : '' %>>ชมรม (CLUB)</option>
+    </select>
+</div>
+
+<div class="col-md-3">
+    <label class="form-label text-success"><i class="fa-solid fa-layer-group me-1"></i> ระดับชั้น (Grade)</label>
+    <select name="grade_level" class="form-select">
+        <option value="" <%= !subject.grade_level ? 'selected' : '' %>>-- ไม่ระบุ --</option>
+        <option value="4" <%= subject.grade_level == 4 ? 'selected' : '' %>>มัธยมศึกษาปีที่ 4</option>
+        <option value="5" <%= subject.grade_level == 5 ? 'selected' : '' %>>มัธยมศึกษาปีที่ 5</option>
+        <option value="6" <%= subject.grade_level == 6 ? 'selected' : '' %>>มัธยมศึกษาปีที่ 6</option>
+    </select>
+</div>
+
+<div class="col-md-3">
+    <label class="form-label text-success"><i class="fa-solid fa-list-ol me-1"></i> ภาคเรียน (Term)</label>
+    <select name="term_no" class="form-select">
+        <option value="" <%= !subject.term_no ? 'selected' : '' %>>-- ไม่ระบุ --</option>
+        <option value="1" <%= subject.term_no == 1 ? 'selected' : '' %>>ภาคเรียนที่ 1</option>
+        <option value="2" <%= subject.term_no == 2 ? 'selected' : '' %>>ภาคเรียนที่ 2</option>
+    </select>
+</div>
+
+<div class="col-md-3">
+    <label class="form-label text-success"><i class="fa-solid fa-code-branch me-1"></i> สายการเรียน (Track)</label>
+    <select name="track_id" class="form-select">
+        <option value="" <%= !subject.track_id ? 'selected' : '' %>>-- ไม่ระบุ --</option>
+        <option value="1" <%= subject.track_id == 1 ? 'selected' : '' %>>วิทย์-คณิต (1)</option>
+        <option value="2" <%= subject.track_id == 2 ? 'selected' : '' %>>ศิลป์-คำนวณ (2)</option>
+        <option value="3" <%= subject.track_id == 3 ? 'selected' : '' %>>ศิลป์-ภาษา (3)</option>
+        <option value="4" <%= subject.track_id == 4 ? 'selected' : '' %>>ทั่วไป/อื่นๆ (4)</option>
+    </select>
+</div>
+                                            <div class="col-md-12">
+                                                <label class="form-label">อาจารย์ผู้สอนประจำวิชา</label>
+                                                <select name="teacher_id" class="form-select" required>
+                                                    <option value="" disabled>-- กรุณาเลือกอาจารย์ --</option>
+                                                    <% teachers.forEach(t => { %>
+                                                        <option value="<%= t.teacher_id %>" <%= subject.teacher_id == t.teacher_id ? 'selected' : '' %>>
+                                                            <%= t.first_name %> <%= t.last_name %> (รหัส: <%= t.teacher_id %>)
+                                                        </option>
+                                                    <% }) %>
+                                                </select>
+                                            </div>
+
+                                            <hr class="my-4 opacity-0">
+
+                                            <div class="col-md-4">
+                                                <label class="form-label text-primary"><i class="fa-solid fa-calendar-day me-1"></i> วันที่ทำการสอน</label>
+                                                <select name="schedule_day" class="form-select">
+                                                    <% ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'].forEach(day => { %>
+                                                        <option value="<%= day %>" <%= (subject.schedule_day === day) ? 'selected' : '' %>><%= day %></option>
+                                                    <% }) %>
+                                                </select>
+                                            </div>
+
+                                            <div class="col-md-4">
+                                                <label class="form-label text-primary"><i class="fa-solid fa-clock me-1"></i> เวลาเริ่มสอน</label>
+                                                <input type="time" name="start_time" class="form-control" value="<%= subject.start_time %>">
+                                            </div>
+
+                                            <div class="col-md-4">
+                                                <label class="form-label text-primary"><i class="fa-solid fa-clock me-1"></i> เวลาสิ้นสุด</label>
+                                                <input type="time" name="end_time" class="form-control" value="<%= subject.end_time %>">
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <label class="form-label text-primary"><i class="fa-solid fa-door-open me-1"></i> ห้องเรียน</label>
+                                                <input type="text" name="room" class="form-control" placeholder="เช่น B4101" value="<%= subject.room %>">
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <label class="form-label text-primary"><i class="fa-solid fa-users me-1"></i> จำนวนที่รับสมัครสูงสุด</label>
+                                                <input type="number" name="max_students" class="form-control" value="<%= subject.max_students %>">
+                                            </div>
+
+                                            <div class="col-12 mt-5">
+                                                <button type="submit" class="btn btn-save w-100 shadow-sm">
+                                                    <i class="fa-solid fa-floppy-disk me-2"></i>บันทึกการเปลี่ยนแปลงทั้งหมด
+                                                </button>
+                                                <div class="text-center mt-3">
+                                                    <a href="/regis/curriculum" class="text-muted small text-decoration-none">
+                                                        <i class="fa-solid fa-xmark me-1"></i>ยกเลิกการแก้ไข
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

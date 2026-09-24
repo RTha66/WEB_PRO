@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ตารางเรียน</title>
+
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+body{
+ margin:0;
+ background-color:#dbe0e5;
+ font-family:'Prompt',sans-serif;
+ height:100vh;
+ overflow:hidden;
+ display:flex;
+ justify-content:center;
+}
+
+.app-container{
+ width:1280px;
+ max-width:100%;
+ height:100vh;
+ background-color:#f4f5f8;
+ display:flex;
+ flex-direction:column;
+ box-shadow:0 0 25px rgba(0,0,0,0.1);
+}
+
+.top-wrapper{
+ height:64px;
+ width:100%;
+ flex-shrink:0;
+ background-color:#ffffff;
+ z-index:10;
+}
+
+.bottom-wrapper{
+ display:flex;
+ flex:1;
+ overflow:hidden;
+}
+
+.sidebar-wrapper{
+ width:280px;
+ height:100%;
+ flex-shrink:0;
+ background-color:#F4F7FE;
+ border-right:1px solid #E0E0E0;
+}
+
+.main-content{
+ flex:1;
+ display:flex;
+ flex-direction:column;
+ padding:15px;
+ overflow:hidden;
+}
+
+.schedule-card{
+ flex:1;
+ display:flex;
+ flex-direction:column;
+ background-color:#ffffff;
+ border-radius:12px;
+ box-shadow:0 4px 15px rgba(0,0,0,0.05);
+ overflow:hidden;
+ border:1px solid #e0e0e0;
+}
+
+.schedule-header{
+ background-color:#C7E9FF;
+ color:#495057;
+ padding:8px;
+ text-align:center;
+ flex-shrink:0;
+ border-bottom:1px solid #e0e0e0;
+}
+
+.schedule-grid{
+ flex:1;
+ display:flex;
+ flex-direction:column;
+}
+
+.time-row{
+ display:flex;
+ height:35px;
+ flex-shrink:0;
+ background-color:#fafbfc;
+ border-bottom:1px solid #dee2e6;
+}
+
+.day-row{
+ display:flex;
+ flex:1;
+ border-bottom:1px solid #dee2e6;
+}
+
+.day-row:last-child{
+ border-bottom:none;
+}
+
+.col-day{
+ width:50px;
+ flex-shrink:0;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ font-size:0.75rem;
+ font-weight:600;
+ color:#495057;
+ border-right:1px solid #dee2e6;
+ background-color:#fafbfc;
+}
+
+.col-times{
+ flex:1;
+ display:flex;
+ position:relative;
+}
+
+.time-slot{
+ flex:1;
+ border-right:1px dashed #e9ecef;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ font-size:0.7rem;
+ color:#adb5bd;
+ font-weight:500;
+}
+
+.time-slot:last-child{
+ border-right:none;
+}
+
+.course-block{
+ position:absolute;
+ top:3px;
+ bottom:3px;
+ border-radius:4px;
+ padding:5px 8px;
+ color:#333;
+ display:flex;
+ flex-direction:column;
+ overflow:hidden;
+ border:1px solid rgba(0,0,0,0.05);
+ transition:transform .2s,box-shadow .2s;
+}
+
+.course-block:hover{
+ transform:scale(1.02);
+ box-shadow:0 4px 10px rgba(0,0,0,0.1);
+ z-index:20;
+}
+
+.course-code{
+ font-weight:700;
+ font-size:.75rem;
+ white-space:nowrap;
+ overflow:hidden;
+ text-overflow:ellipsis;
+}
+
+.course-name{
+ font-weight:500;
+ font-size:.7rem;
+ line-height:1.2;
+ white-space:nowrap;
+ overflow:hidden;
+ text-overflow:ellipsis;
+ flex:1;
+}
+
+.course-footer{
+ display:flex;
+ justify-content:space-between;
+ font-size:.65rem;
+ opacity:.85;
+ font-weight:600;
+}
+</style>
+</head>
+
+<body>
+
+<div class="app-container">
+
+<div class="top-wrapper">
+<%- include('partials/mtbar') %>
+</div>
+
+<div class="bottom-wrapper">
+
+<div class="sidebar-wrapper">
+<%- include('partials/mlbar') %>
+</div>
+
+<main class="main-content">
+
+<div class="schedule-card">
+
+<div class="schedule-header">
+<h6 class="fw-bold mb-0">
+ตารางเรียน ภาคเรียนที่
+<%= schedules && schedules.length ? schedules[0].term + '/' + schedules[0].year : '-' %>
+</h6>
+
+<div style="font-size:0.75rem;font-weight:500;">
+<%= user.first_name %> <%= user.last_name %>
+(รหัสนักเรียน: <%= user.student_code %>)
+</div>
+</div>
+
+<div class="schedule-grid">
+
+<div class="time-row">
+<div class="col-day"></div>
+<div class="col-times">
+<% for(let i=9;i<17;i++){ %>
+<div class="time-slot">
+<%= (i<10?'0':'')+i %>:00 -
+<%= (i+1<10?'0':'')+(i+1) %>:00
+</div>
+<% } %>
+</div>
+</div>
+
+<%
+const days=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+
+const dayLabels={
+Monday:'Mon',
+Tuesday:'Tue',
+Wednesday:'Wed',
+Thursday:'Thu',
+Friday:'Fri',
+Saturday:'Sat',
+Sunday:'Sun'
+};
+
+const bgColors=[
+'#FFB3BA',
+'#FFDFBA',
+'#FFFFBA',
+'#BAFFC9',
+'#BAE1FF',
+'#D0BFFF',
+'#E2F0CB'
+];
+
+const getPos=(timeStr)=>{
+ if(!timeStr) return 0;
+ const parts=timeStr.split(':');
+ const mins=((parseInt(parts[0])-9)*60)+parseInt(parts[1]);
+ return (mins/480)*100;
+};
+%>
+
+<% days.forEach(day=>{ 
+const daySchedules = schedules ? schedules.filter(s=>s.schedule_day===day) : [];
+%>
+
+<div class="day-row">
+
+<div class="col-day"><%= dayLabels[day] %></div>
+
+<div class="col-times">
+
+<% for(let i=0;i<8;i++){ %>
+<div class="time-slot"></div>
+<% } %>
+
+<% daySchedules.forEach((s)=>{
+
+const leftPos=getPos(s.start_time);
+const rightPos=getPos(s.end_time);
+const widthPct=rightPos-leftPos;
+
+const colorNum=s.course_code
+.split('')
+.reduce((acc,char)=>acc+char.charCodeAt(0),0);
+
+const blockColor=bgColors[colorNum % bgColors.length];
+%>
+
+<div class="course-block"
+style="left:<%= leftPos %>%; width:<%= widthPct %>%; background-color:<%= blockColor %>">
+
+<div class="course-code">
+<%= s.course_code %>
+<%= s.room ? '| '+s.room : '' %>
+</div>
+
+<div class="course-name">
+<%= s.course_name %>
+</div>
+
+<div class="course-footer">
+<span><%= s.start_time %>-<%= s.end_time %></span>
+</div>
+
+</div>
+
+<% }) %>
+
+</div>
+</div>
+
+<% }) %>
+
+</div>
+</div>
+
+</main>
+</div>
+</div>
+
+</body>
+</html>
+

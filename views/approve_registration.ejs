@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>จัดการคำร้องการลงทะเบียน</title>
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        body { margin: 0; background-color: #dbe0e5; font-family: 'Prompt', sans-serif; height: 100vh; overflow: hidden; display: flex; justify-content: center; }
+        .app-container { width: 1280px; max-width: 100%; height: 100vh; background-color: #f4f5f8; display: flex; flex-direction: column; box-shadow: 0 0 25px rgba(0,0,0,0.1); }
+        .top-wrapper { height: 64px; flex-shrink: 0; background-color: #ffffff; z-index: 10; }
+        .bottom-wrapper { display: flex; flex: 1; overflow: hidden; }
+        .sidebar-wrapper { width: 280px; flex-shrink: 0; background-color: #F4F7FE; border-right: 1px solid #E0E0E0; }
+        .main-content { flex: 1; padding: 40px; overflow-y: auto; }
+
+        .table-container { background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden; border: 1px solid #e0e0e0; }
+        .table thead { background-color: #f8f9fa; }
+        .table thead th { font-weight: 600; color: #1a1a1a; text-transform: uppercase; font-size: 0.8rem; padding: 15px; border-bottom: 2px solid #eee; }
+        
+        .student-avatar { width: 40px; height: 40px; background: #e8e6ff; color: #4A3AFF; display: flex; align-items: center; justify-content: center; border-radius: 10px; font-weight: bold; font-size: 1.1rem; }
+        
+        /* กลับมาใช้ CSS เดิมของคุณ */
+        .status-select { border: none; border-radius: 20px; padding: 6px 12px; font-weight: 600; font-size: 0.85rem; cursor: pointer; outline: none; appearance: none; -webkit-appearance: none; text-align: center; width: 140px; transition: 0.2s; }
+        .status-pending { background-color: #fff7ed; color: #9a3412; border: 1px solid #ffedd5; } 
+        .status-approved { background-color: #f0fdf4; color: #166534; border: 1px solid #dcfce7; } 
+        .status-rejected { background-color: #fef2f2; color: #991b1b; border: 1px solid #fee2e2; }
+
+        .btn-approve { background-color: #0D6EFD; color: white; border: none; border-radius: 8px; padding: 5px 15px; font-size: 0.85rem; transition: 0.2s; }
+        .btn-approve:hover { background-color: #0b5ed7; transform: translateY(-1px); }
+    </style>
+</head>
+<body>
+    
+    <div class="app-container">
+        <div class="top-wrapper">
+            <%- include('partials/mtbar') %>
+        </div>
+
+        <div class="bottom-wrapper">
+            <div class="sidebar-wrapper">
+                <%- include('partials/mlbar') %>
+            </div>
+
+            <main class="main-content">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3 class="fw-bold m-0" style="color: #1a1a1a;">จัดการคำร้องการลงทะเบียน</h3>
+                    <span class="badge bg-white text-dark border rounded-pill px-3 py-2 shadow-sm" style="font-weight: 500;">
+                        คำร้องทั้งหมด: <%= (typeof requests !== 'undefined' && requests) ? requests.length : 0 %> รายการ
+                    </span>
+                </div>
+
+                <div class="table-container">
+                    <table class="table table-hover m-0 align-middle">
+                        <thead>
+                            <tr>
+                                <th class="ps-4">ข้อมูลนักเรียน</th>
+                                <th>รายวิชาที่ขอลงทะเบียน</th>
+                                <th>สถานะปัจจุบัน</th>
+                                <th class="text-center">การจัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% if (typeof requests !== 'undefined' && requests && requests.length > 0) { %>
+                                <% requests.forEach(reqItem => { %>
+                                    <tr>
+                                        <td class="ps-4">
+                                            <div class="d-flex align-items-center py-2">
+                                                <div class="student-avatar me-3">
+                                                    <%= (reqItem.student_fname) ? reqItem.student_fname.charAt(0) : 'S' %>
+                                                </div>
+                                                <div>
+                                                    <div class="fw-bold text-dark"><%= reqItem.student_fname %> <%= reqItem.student_lname %></div>
+                                                    <div class="text-muted small">รหัส: <%= reqItem.student_code %></div>
+                                                </div>
+                                            </div>
+                                        </td>
+
+                                        <td>
+                                            <div class="fw-bold text-primary" style="font-size: 0.95rem;">
+                                                <%= reqItem.course_name %>
+                                            </div>
+                                            <div class="text-muted small mt-1">
+                                                <span class="me-2"><i class="fa-solid fa-hashtag me-1"></i><%= reqItem.course_code %></span>
+                                                <span><i class="fa-solid fa-door-open me-1"></i>ห้อง: <%= reqItem.room || '-' %></span>
+                                            </div>
+                                        </td>
+
+                                        <td>
+                                            <form action="/regis/update-status/<%= reqItem.enrollment_id %>" method="POST" id="statusForm<%= reqItem.enrollment_id %>">
+                                                <select name="status" class="status-select 
+                                                    <%= reqItem.status === 'approved' ? 'status-approved' : (reqItem.status === 'pending' ? 'status-pending' : 'status-rejected') %>"
+                                                    onchange="confirmChange('<%= reqItem.enrollment_id %>', this.value)">
+                                                    <option value="pending" <%= reqItem.status === 'pending' ? 'selected' : '' %>>● In Progress</option>
+                                                    <option value="approved" <%= reqItem.status === 'approved' ? 'selected' : '' %>>● Approved</option>
+                                                    <option value="rejected" <%= reqItem.status === 'rejected' ? 'selected' : '' %>>● Rejected</option>
+                                                </select>
+                                            </form>
+                                        </td>
+
+                                        <td class="text-center">
+                                            <div class="d-flex justify-content-center gap-2">
+                                                
+                                                <% if(reqItem.status !== 'approved') { %>
+                                                    <button onclick="confirmSubmit('<%= reqItem.enrollment_id %>', 'approved')" 
+                                                            class="btn-approve shadow-sm">
+                                                        อนุมัติ
+                                                    </button>
+                                                <% } %>
+                                                
+                                                <form action="/regis/delete-enrollment/<%= reqItem.enrollment_id %>" method="POST" 
+                                                      onsubmit="return confirm('คุณแน่ใจหรือไม่ที่จะลบคำร้องนี้?')">
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger border-0">
+                                                        <i class="fa-solid fa-trash-can"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <% }); %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="4" class="text-center py-5">
+                                        <div class="text-muted">
+                                            <i class="fa-solid fa-inbox fa-3x mb-3 opacity-25"></i>
+                                            <p>ไม่มีคำร้องการลงทะเบียนในขณะนี้</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // สคริปต์ทำงานกับ Dropdown และปุ่มอนุมัติเหมือนเดิมเป๊ะๆ
+        function confirmChange(id, status) {
+            const statusMap = { 'approved': 'อนุมัติ', 'pending': 'กำลังดำเนินการ', 'rejected': 'ปฏิเสธ' };
+            if (confirm(`คุณต้องการเปลี่ยนสถานะเป็น "${statusMap[status]}" ใช่หรือไม่?`)) {
+                document.getElementById(`statusForm${id}`).submit();
+            } else {
+                location.reload(); 
+            }
+        }
+
+        function confirmSubmit(id, status) {
+            if (confirm('ยืนยันการอนุมัติการลงทะเบียนนี้ทันที?')) {
+                const form = document.getElementById(`statusForm${id}`);
+                form.querySelector('select').value = status;
+                form.submit();
+            }
+        }
+    </script>
+</body>
+</html>

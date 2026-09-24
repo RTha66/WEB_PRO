@@ -1,0 +1,110 @@
+body {
+    background-color: #f8f9fa;
+}
+
+thead th {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 700;
+    border-bottom: 2px solid #f1f1f1 !important;
+    color: #7a7a7a;
+    padding: 18px 10px !important;
+    border: none !important;
+}
+
+.table-hover tbody tr:hover {
+    transition: 0.2s;
+    background-color: #f9faff !important;
+}
+
+.btn-sm {
+    padding: 0.4rem 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.badge {
+    font-weight: 500;
+    font-size: 0.75rem;
+}
+
+.bg-success { background-color: #d1fae5 !important; color: #065f46 !important; }
+.bg-warning { background-color: #fef3c7 !important; color: #92400e !important; }
+.bg-danger { background-color: #fee2e2 !important; color: #991b1b !important; }
+.bg-info { background-color: #e0f2fe !important; color: #075985 !important; }
+
+/* Unique theme for Teacher pages */
+.btn-purple, .bg-purple {
+    background-color: #7c83fd !important;
+}
+
+.text-purple {
+    color: #7c83fd !important;
+}
+
+.btn-outline-purple {
+    border-color: #7c83fd;
+    color: #7c83fd;
+}
+
+.btn-outline-purple:hover {
+    background-color: #7c83fd;
+    color: white;
+}
+
+/* Status Badges */
+.badge-active {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.badge-inactive {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+thead th {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #7a7a7a;
+    letter-spacing: 0.5px;
+    padding: 18px 10px !important;
+    border: none !important;
+}
+
+.table td {
+    padding: 15px 10px;
+    border-bottom: 1px solid #f1f1f1;
+}
+
+.toggle-container {
+    display: inline-flex;
+    background-color: #ffffff;
+    border: 1.5px solid #eef0f7; 
+    border-radius: 12px;
+    padding: 6px;
+    margin: 2% 10%;
+    gap: 4px;
+}
+
+.toggle-item {
+    text-decoration: none;
+    color: #6c757d; 
+    padding: 10px 30px;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+}
+
+.toggle-item.active {
+    background-color: #f0f4ff; 
+    color: #5b63e0;           
+    box-shadow: 0 2px 4px rgba(91, 99, 224, 0.05);
+}
+
+.toggle-item:hover:not(.active) {
+    background-color: #f8f9fa;
+    color: #333;
+}

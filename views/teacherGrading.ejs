@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>กรอกคะแนนนักศึกษา</title>
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body { margin: 0; background-color: #dbe0e5; font-family: 'Prompt', sans-serif; height: 100vh; overflow: hidden; display: flex; justify-content: center; }
+        .app-container { width: 1280px; max-width: 100%; height: 100vh; background-color: #f4f5f8; display: flex; flex-direction: column; box-shadow: 0 0 25px rgba(0,0,0,0.1); }
+        .top-wrapper { height: 64px; flex-shrink: 0; background-color: #ffffff; z-index: 10; }
+        .bottom-wrapper { display: flex; flex: 1; overflow: hidden; }
+        .sidebar-wrapper { width: 280px; flex-shrink: 0; background-color: #F4F7FE; border-right: 1px solid #E0E0E0; }
+        .main-content { flex: 1; padding: 20px; overflow-y: auto; }
+        
+        .grading-card { background-color: #fff; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden; border: 1px solid #e0e0e0; }
+        .grading-header { background-color: #FFDAC1; color: #495057; padding: 15px 20px; border-bottom: 1px solid #e0e0e0; }
+        
+        .score-input { width: 70px; text-align: center; border: 1px solid #ced4da; border-radius: 6px; padding: 4px; }
+        .score-input:focus { outline: none; border-color: #4CAF50; box-shadow: 0 0 0 0.2rem rgba(76, 175, 80, 0.25); }
+        .total-score { font-weight: bold; color: #1E3A8A; }
+        .grade-badge { display: inline-block; width: 40px; padding: 4px; text-align: center; font-weight: bold; border-radius: 6px; background-color: #f8f9fa; border: 1px solid #dee2e6;}
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="top-wrapper"><%- include('partials/mtbar') %></div>
+        <div class="bottom-wrapper">
+            <div class="sidebar-wrapper"><%- include('partials/mlbar') %></div>
+
+            <main class="main-content">
+                <div class="grading-card">
+                    <div class="grading-header d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-1 fw-bold">กรอกคะแนนรายวิชา <%= course.course_code %></h5>
+                            <div style="font-size: 0.9rem; font-weight: 500;"><%= course.course_name %> | ภาคเรียน <%= course.term %>/<%= course.year %></div>
+                        </div>
+                        <span class="badge bg-white text-dark border fs-6 shadow-sm">Section <%= sectionId %></span>
+                    </div>
+
+                    <div class="p-4">
+                        <form action="/teacher/grading/<%= sectionId %>" method="POST">
+                            <table class="table table-hover align-middle border">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th width="5%" class="text-center">ลำดับ</th>
+                                        <th width="15%" class="text-center">รหัสนักศึกษา</th>
+                                        <th width="20%">ชื่อ - นามสกุล</th>
+                                        <th width="12%" class="text-center">เก็บ (30)</th>
+                                        <th width="12%" class="text-center">กลางภาค (30)</th>
+                                        <th width="12%" class="text-center">ปลายภาค (40)</th>
+                                        <th width="10%" class="text-center">รวม (100)</th>
+                                        <th width="14%" class="text-center">เกรด</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% if (students && students.length > 0) { %>
+                                        <% students.forEach((std, index) => { %>
+                                            <tr>
+                                                <td class="text-center"><%= index + 1 %></td>
+                                                <td class="text-center fw-semibold"><%= std.student_code %></td>
+                                                <td><%= std.first_name %> <%= std.last_name %></td>
+                                                
+                                                <input type="hidden" name="student_id" value="<%= std.student_id %>">
+                                                
+                                                <td class="text-center">
+                                                    <input type="number" name="assignment_score" class="score-input assign-input" min="0" max="30"
+                                                        value="<%= (std.assignment_score !== null) ? std.assignment_score : '' %>" 
+                                                        oninput="calculateRow(this)">
+                                                </td>
+                                                <td class="text-center">
+                                                    <input type="number" name="midterm_score" class="score-input mid-input" min="0" max="30"
+                                                        value="<%= (std.midterm_score !== null) ? std.midterm_score : '' %>" 
+                                                        oninput="calculateRow(this)">
+                                                </td>
+                                                <td class="text-center">
+                                                    <input type="number" name="final_score" class="score-input fin-input" min="0" max="40"
+                                                        value="<%= (std.final_score !== null) ? std.final_score : '' %>" 
+                                                        oninput="calculateRow(this)">
+                                                </td>
+                                                <td class="text-center total-score">0</td>
+                                                <td class="text-center">
+                                                    <input type="hidden" name="grade_letter" class="grade-input">
+                                                    <span class="grade-badge"><%= std.grade_letter || '-' %></span>
+                                                </td>
+                                            </tr>
+                                        <% }) %>
+                                    <% } else { %>
+                                        <tr>
+                                            <td colspan="8" class="text-center py-5 text-muted">
+                                                <i class="bi bi-person-x fs-1 d-block mb-2"></i>
+                                                ไม่พบรายชื่อนักเรียนในกลุ่มเรียนนี้
+                                            </td>
+                                        </tr>
+                                    <% } %>
+                                </tbody>
+                            </table>
+
+                            <div class="text-end mt-4">
+                                <button type="reset" class="btn btn-outline-secondary me-2 px-4">ล้างค่า</button>
+                                <button type="submit" class="btn btn-success px-5 fw-bold shadow-sm" style="background-color: #FFB3BA; border: none; color: #333;">บันทึกคะแนน</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        function calculateRow(inputElement) {
+            const row = inputElement.closest('tr');
+            
+            const getVal = (selector) => {
+                const val = row.querySelector(selector).value;
+                return val === "" ? 0 : parseFloat(val);
+            };
+
+            const assignVal = getVal('.assign-input');
+            const midVal = getVal('.mid-input');
+            const finVal = getVal('.fin-input');
+            
+            const total = assignVal + midVal + finVal;
+            row.querySelector('.total-score').innerText = total;
+
+            let grade = 'F'; 
+            if (total >= 80) grade = 'A';
+            else if (total >= 75) grade = 'B+';
+            else if (total >= 70) grade = 'B';
+            else if (total >= 65) grade = 'C+';
+            else if (total >= 60) grade = 'C';
+            else if (total >= 55) grade = 'D+';
+            else if (total >= 50) grade = 'D';
+
+            row.querySelector('.grade-badge').innerText = grade;
+            row.querySelector('.grade-input').value = grade;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.assign-input').forEach(el => calculateRow(el));
+        });
+    </script>
+</body>
+</html>

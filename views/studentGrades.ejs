@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ผลการเรียน | ระบบจัดการการศึกษา</title>
+    
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <style>
+        body { margin: 0; background-color: #dbe0e5; font-family: 'Prompt', sans-serif; height: 100vh; overflow: hidden; display: flex; justify-content: center; }
+        .app-container { width: 1280px; max-width: 100%; height: 100vh; background-color: #f4f5f8; display: flex; flex-direction: column; box-shadow: 0 0 25px rgba(0,0,0,0.1); }
+        .top-wrapper { height: 64px; flex-shrink: 0; background-color: #ffffff; z-index: 10; border-bottom: 1px solid #E0E0E0;}
+        
+        .bottom-wrapper { display: flex; flex: 1; overflow: hidden; min-height: 0; }
+        .sidebar-wrapper { width: 280px; flex-shrink: 0; background-color: #F4F7FE; border-right: 1px solid #E0E0E0; overflow-y: auto; }
+        .main-content { flex: 1; padding: 25px; overflow-y: auto; height: 100%; }
+
+        .student-card { background-color: #fff; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden; border: 1px solid #e0e0e0; margin-bottom: 20px; }
+        .student-header { background-color: #CFE2FF; color: #084298; padding: 15px 20px; border-bottom: 1px solid #e0e0e0; }
+
+        .table-scroll { max-height: 450px; overflow-y: auto; border: 1px solid #e0e0e0; border-radius: 8px; }
+        .table-hover tbody tr:hover { background-color: #f8f9fa; }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+
+        <div class="top-wrapper">
+            <%- include('partials/mtbar') %>
+        </div>
+
+        <div class="bottom-wrapper">
+
+            <div class="sidebar-wrapper">
+                <%- include('partials/mlbar') %>
+            </div>
+
+            <main class="main-content">
+
+                <div class="student-card">
+
+                    <div class="student-header">
+                        <h5 class="mb-0 fw-bold"><i class="bi bi-award me-2"></i>ผลการเรียน (My Grades)</h5>
+                    </div>
+
+                    <div class="p-4">
+                        
+                        <form method="GET" action="/student/grades" class="row g-3 align-items-center mb-4 bg-light p-3 rounded-3 border mx-0">
+                            <div class="col-md-auto">
+                                <label class="form-label fw-bold text-dark mb-0 me-2"><i class="bi bi-funnel me-1"></i> ตัวกรอง:</label>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text bg-white border-primary text-primary fw-semibold">ปีการศึกษา</span>
+                                    <select name="year" class="form-select border-primary" onchange="this.form.submit()">
+                                        <option value="">ทั้งหมด (All Years)</option>
+                                        <% years.forEach(y => { %>
+                                            <option value="<%= y %>" <%= selectedYear == y ? 'selected' : '' %>>
+                                                <%= y %>
+                                            </option>
+                                        <% }) %>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text bg-white border-primary text-primary fw-semibold">เทอม</span>
+                                    <select name="term" class="form-select border-primary" onchange="this.form.submit()">
+                                        <option value="">ทั้งหมด (All Terms)</option>
+                                        <option value="1" <%= selectedTerm == '1' ? 'selected' : '' %>>1</option>
+                                        <option value="2" <%= selectedTerm == '2' ? 'selected' : '' %>>2</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </form>
+
+                        <div class="table-scroll shadow-sm">
+                            <table class="table table-hover align-middle text-center mb-0">
+                                <thead class="table-light sticky-top" style="z-index: 1;">
+                                    <tr>
+                                        <th class="ps-4 text-start">รหัสวิชา</th>
+                                        <th class="text-start">ชื่อวิชา</th>
+                                        <th>หน่วยกิต</th>
+                                        <th>เก็บสะสม</th>
+                                        <th>กลางภาค</th>
+                                        <th>ปลายภาค</th>
+                                        <th class="text-primary">รวมคะแนน</th>
+                                        <th>เกรด</th>
+                                        <th>ปีการศึกษา</th>
+                                        <th>เทอม</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% if(grades.length === 0){ %>
+                                        <tr>
+                                            <td colspan="10" class="text-center py-5 text-muted">
+                                                <i class="bi bi-folder-x fs-2 d-block mb-2"></i>
+                                                ยังไม่มีข้อมูลผลการเรียนในระบบ
+                                            </td>
+                                        </tr>
+                                    <% } %>
+
+                                    <% grades.forEach(g => { %>
+                                        <tr>
+                                            <td class="ps-4 text-start fw-semibold text-primary"><%= g.course_code %></td>
+                                            <td class="text-start text-dark fw-medium"><%= g.course_name %></td>
+                                            <td><%= g.credit_hours %></td>
+                                            <td><span class="text-muted"><%= g.assignment_score || 0 %></span></td>
+                                            <td><span class="text-muted"><%= g.midterm_score || 0 %></span></td>
+                                            <td><span class="text-muted"><%= g.final_score || 0 %></span></td>
+                                            
+                                            <td class="fw-bold text-primary">
+                                                <%= (g.assignment_score || 0) + (g.midterm_score || 0) + (g.final_score || 0) %>
+                                            </td>
+                                            
+                                            <td>
+                                                <% 
+                                                    let gradeColor = 'bg-secondary';
+                                                    if (['A', '4', '4.0'].includes(g.grade_letter)) gradeColor = 'bg-success';
+                                                    else if (['B+', 'B', '3.5', '3.0'].includes(g.grade_letter)) gradeColor = 'bg-primary';
+                                                    else if (['C+', 'C', '2.5', '2.0'].includes(g.grade_letter)) gradeColor = 'bg-info text-dark';
+                                                    else if (['D+', 'D', '1.5', '1.0'].includes(g.grade_letter)) gradeColor = 'bg-warning text-dark';
+                                                    else if (['F', '0'].includes(g.grade_letter)) gradeColor = 'bg-danger';
+                                                %>
+                                                <span class="badge <%= gradeColor %> rounded-pill px-3 shadow-sm fw-bold fs-6">
+                                                    <%= g.grade_letter || '-' %>
+                                                </span>
+                                            </td>
+                                            <td><%= g.year %></td>
+                                            <td><%= g.term %></td>
+                                        </tr>
+                                    <% }) %>
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </main>
+
+        </div>
+    </div>
+
+</body>
+</html>

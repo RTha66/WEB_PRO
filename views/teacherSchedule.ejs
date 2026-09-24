@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ตารางสอนอาจารย์</title>
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body { margin: 0; background-color: #dbe0e5; font-family: 'Prompt', sans-serif; height: 100vh; overflow: hidden; display: flex; justify-content: center; }
+        .app-container { width: 1280px; max-width: 100%; height: 100vh; background-color: #f4f5f8; display: flex; flex-direction: column; box-shadow: 0 0 25px rgba(0,0,0,0.1); }
+        .top-wrapper { height: 64px; flex-shrink: 0; background-color: #ffffff; z-index: 10; }
+        .bottom-wrapper { display: flex; flex: 1; overflow: hidden; }
+        .sidebar-wrapper { width: 280px; flex-shrink: 0; background-color: #F4F7FE; border-right: 1px solid #E0E0E0; }
+        .main-content { flex: 1; display: flex; flex-direction: column; padding: 15px; overflow: hidden; }
+        .schedule-card { flex: 1; display: flex; flex-direction: column; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden; border: 1px solid #e0e0e0; }
+        .schedule-header { background-color: #FFDAC1; color: #495057; padding: 10px; text-align: center; border-bottom: 1px solid #e0e0e0; }
+        .schedule-grid { flex: 1; display: flex; flex-direction: column; }
+        .time-row { display: flex; height: 35px; background-color: #fafbfc; border-bottom: 1px solid #dee2e6; }
+        .day-row { display: flex; flex: 1; border-bottom: 1px solid #dee2e6; }
+        .day-row:last-child { border-bottom: none; }
+        .col-day { width: 60px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 600; color: #495057; border-right: 1px solid #dee2e6; background-color: #fafbfc; }
+        .col-times { flex: 1; display: flex; position: relative; }
+        .time-slot { flex: 1; border-right: 1px dashed #e9ecef; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; color: #adb5bd; }
+        .course-block { position: absolute; top: 4px; bottom: 4px; border-radius: 6px; padding: 6px; color: #333; display: flex; flex-direction: column; overflow: hidden; border: 1px solid rgba(0,0,0,0.05); transition: 0.2s; cursor: default; }
+        .course-block:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); z-index: 10; }
+        .course-code { font-weight: 700; font-size: 0.75rem; margin-bottom: 2px; }
+        .course-name { font-size: 0.7rem; line-height: 1.2; font-weight: 500; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .course-footer { margin-top: auto; font-size: 0.55rem; font-weight: 600; opacity: 0.8; letter-spacing: -0.2px;}
+        .semester-badge {
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 50px;
+            padding: 5px 20px;
+            font-size: 0.85rem;
+            color: #6c757d;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="top-wrapper"><%- include('partials/mtbar') %></div>
+        <div class="bottom-wrapper">
+            <div class="sidebar-wrapper"><%- include('partials/mlbar') %></div>
+
+            <main class="main-content">
+                <div class="schedule-card">
+                    <div class="schedule-header">
+                        <h6 class="fw-bold mb-0">ตารางสอนอาจารย์</h6>
+                        <div style="font-size: 0.8rem;"><%= user.first_name %> <%= user.last_name %></div>
+                    </div>
+
+                    <div class="p-3 bg-light border-bottom text-center">
+                        <div class="semester-badge">
+                            <i class="bi bi-calendar3 me-1"></i>
+                            <strong>ภาคเรียนปัจจุบัน:</strong> 
+                            <%= currentSemester.term %> / <%= currentSemester.year %>
+                        </div>
+                    </div>
+
+                    <div class="schedule-grid">
+                        <div class="time-row">
+                            <div class="col-day"></div>
+                            <div class="col-times">
+                                <% for(let i = 9; i < 17; i++) { %>
+                                    <div class="time-slot"><%= i %>:00 - <%= i+1 %>:00</div>
+                                <% } %>
+                            </div>
+                        </div>
+
+                        <% 
+                            const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+                            const dayLabels = { 'Monday':'Mon', 'Tuesday':'Tue', 'Wednesday':'Wed', 'Thursday':'Thu', 'Friday':'Fri' };
+                            const bgColors = ['#FFB3BA', '#FFDFBA', '#FFFFBA', '#BAFFC9', '#BAE1FF'];
+
+                            const getPos = (timeStr) => {
+                                if(!timeStr) return 0;
+                                const [h, m] = timeStr.split(':').map(Number);
+                                const mins = ((h - 9) * 60) + m;
+                                return (mins / 480) * 100;
+                            };
+                        %>
+
+                        <% days.forEach(day => { 
+                            let daySchedules = schedules.filter(s => s.schedule_day === day);
+                        %>
+                            <div class="day-row">
+                                <div class="col-day text-uppercase"><%= dayLabels[day] %></div>
+                                <div class="col-times">
+                                    <% for(let i = 0; i < 8; i++) { %><div class="time-slot"></div><% } %>
+
+                                    <% daySchedules.forEach(s => { 
+                                        let left = getPos(s.start_time);
+                                        let width = getPos(s.end_time) - left;
+                                        // สุ่มสีตามตัวอักษรสุดท้ายของรหัสวิชาเพื่อให้สีคงที่สำหรับวิชานั้นๆ
+                                        let colorIdx = s.course_code.charCodeAt(s.course_code.length-1) % bgColors.length;
+                                    %>
+                                        <div class="course-block" style="left: <%= left %>%; width: <%= width %>%; background-color: <%= bgColors[colorIdx] %>;">
+                                            <div class="course-code"><%= s.course_code %></div>
+                                            <div class="course-name"><%= s.course_name %></div>
+                                            <div class="course-footer d-flex justify-content-between">
+                                                <span><%= s.room || 'N/A' %></span>
+                                                <span><%= s.start_time %>-<%= s.end_time %></span>
+                                            </div>
+                                        </div>
+                                    <% }) %>
+                                </div>
+                            </div>
+                        <% }) %>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,43 @@
+body {
+    background-color: #f8f9fa;
+    font-family: 'Inter', sans-serif;
+}
+
+.form-card {
+    background: #ffffff;
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    max-width: 700px;
+    margin: auto;
+}
+
+.form-label {
+    font-weight: 500;
+    color: #444;
+    margin-bottom: 8px;
+}
+
+.form-control, .form-select {
+    border: 1.5px solid #dce1ff; 
+    border-radius: 8px;
+    padding: 10px 15px;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #7c83fd;
+    box-shadow: 0 0 0 0.25 margin rgba(124, 131, 253, 0.25);
+    outline: none;
+}
+
+.btn-primary {
+    background-color: #7c83fd;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+.btn-primary:hover {
+    background-color: #5b63e0;
+}

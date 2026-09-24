@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบจัดการการศึกษา</title>
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/index.css">
+</head>
+<body>
+    <% if (user.role === 'teacher') { %>
+        <%- include('teacherHome') %> 
+    <% } else if (user.role === 'student') { %>
+        <%- include('studentHome') %> 
+    <% } else if (user.role === 'registration') { %>
+        <%- include('regisHome') %> 
+    <% } else if (user.role === 'admin') { %>
+        <%- include('adinfo') %>
+    <% } else { %>
+        <div class="container mt-5">
+            <div class="alert alert-danger w-100 text-center shadow-sm">
+                ไม่พบสิทธิ์การใช้งานที่ถูกต้องในระบบ
+            </div>
+        </div>
+    <% } %>
+</body>
+</html>

@@ -1,0 +1,31 @@
+{
+  "name": "fwp_group",
+  "version": "1.0.0",
+  "description": "Group for FWP.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Niravit-Kajonbunjong/FWP_Group.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Niravit-Kajonbunjong/FWP_Group/issues"
+  },
+  "homepage": "https://github.com/Niravit-Kajonbunjong/FWP_Group#readme",
+  "dependencies": {
+    "bootstrap": "^5.3.8",
+    "cookie-parser": "^1.4.7",
+    "ejs": "^4.0.1",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "sqlite3": "^5.1.7"
+  }
+}
