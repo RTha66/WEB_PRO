@@ -43,7 +43,7 @@ module.exports = {
         
         jwt.verify(token, kate, (err, decoded) => {
             if (err) return res.redirect('/');
-             ม
+            
             if (decoded.role === 'student') {
                 return res.redirect('/student/home'); 
             }
